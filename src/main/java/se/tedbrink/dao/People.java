@@ -4,8 +4,7 @@ import se.tedbrink.model.Person;
 import java.util.Collection;
 
 interface People {
-
-//    Person create (Person person); /////////////// Ändra i PeopleImplementation-klassen
+Person create (Person person);
 
 Collection<Person> findAll();
 

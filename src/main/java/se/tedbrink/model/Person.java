@@ -8,11 +8,11 @@ public class Person {
     private String lastName;
     private String name;
 
-    public Person(String firstName, String lastName) {
+    public Person(int personId, String firstName, String lastName) {
         this.personId = PersonSequencer.nextPersonId(); //////////////// AI databasen
         this.firstName = firstName;
         this.lastName = lastName;
-        name = this.firstName.concat(" " + this.lastName);  //////////////// Går säkert att göra på bättre sätt
+       // name = this.firstName.concat(" " + this.lastName);  //////////////// Går säkert att göra på bättre sätt
     }
 
     public int getPersonID() {   ////////////// AI i databasen
