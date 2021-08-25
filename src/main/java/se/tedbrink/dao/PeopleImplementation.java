@@ -9,31 +9,30 @@ import java.util.Collection;
 import java.util.Collections;
 
 public class PeopleImplementation implements People {
-
-
-      /* private ArrayList<Person> personer = new ArrayList<Person>();
-//    @Override
-    public ArrayList<Person> create(Person person) { /////// Create ska inte returnera en ArrayList!!!!!!!!!!!!!!
-        personer.add(person);
-        return personer;
-    }       */
-
     @Override
     public Person create(Person person) {
 
-        String createSQL = "INSERT INTO person (person_id, first_name, last_name) VALUES (?,?,?)";
+        String createSQL = "INSERT INTO person ( first_name, last_name) VALUES (?,?)";
         Connection connection = null;
         PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
         int rowsAffected = 0;
+        Person createdPerson = null;
 
         try {
             connection = MySQLConnection.getInstance().getConnection();
 
-            preparedStatement = connection.prepareStatement(createSQL);
-            preparedStatement.setInt(1, person.getPersonID());
-            preparedStatement.setString(2, person.getFirstName());
+            preparedStatement = connection.prepareStatement(createSQL, Statement.RETURN_GENERATED_KEYS);
+            preparedStatement.setString(1, person.getFirstName());
+            preparedStatement.setString(2, person.getLastName());
 
             rowsAffected = preparedStatement.executeUpdate();
+            resultSet = preparedStatement.getGeneratedKeys();
+
+            if (resultSet.next()) {
+                person.setPersonId(resultSet.getInt(1));
+            }
+
         } catch (SQLIntegrityConstraintViolationException exception) {
             System.out.println("Can not create: Violation of Constraint");
         } catch (SQLException e) {
@@ -42,12 +41,7 @@ public class PeopleImplementation implements People {
         return person;
     }
 
-    //        if (rowsAffected > 0) {  // bara om Create-metoden ska returnera en boolean
-//            return true;
-//        } else {
-//            return false;
-//        }
-//
+
 //  @Override
     public Collection<Person> findAll() {
 
@@ -70,7 +64,7 @@ public class PeopleImplementation implements People {
 
                 personsFound.add(
                         new Person(
-                                resultSet.getInt("person_id"),    /////////////////////////////////////////////////////
+                                resultSet.getInt("person_id"),
                                 resultSet.getString("first_name"),
                                 resultSet.getString("last_name")
                         )
@@ -83,7 +77,7 @@ public class PeopleImplementation implements People {
         return personsFound;
     }
 
-    @Override
+    //@Override
     public Person findById(int personId) {
         Person personFound = null;
         String findById = "SELECT * FROM person person_id = ?";
@@ -95,6 +89,7 @@ public class PeopleImplementation implements People {
             connection = MySQLConnection.getInstance().getConnection();
 
             preparedStatement = connection.prepareStatement(findById);
+            preparedStatement.setInt(1, personId);
 
             resultSet = preparedStatement.executeQuery();
 
@@ -118,7 +113,7 @@ public class PeopleImplementation implements People {
     public Collection<Person> findByName(String name) {         ////////////////för- efternamn eller båda??????????? //////////////////
         Collection<Person> personFound = new ArrayList<>();
 
-        String findByName = "SELECT * FROM person WHERE name LIKE ?";
+        String findByName = "SELECT * FROM person WHERE last_name LIKE ?";   // Får lägga till first_name AND last_name
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -149,9 +144,32 @@ public class PeopleImplementation implements People {
 
     @Override
     public Person update(Person person) {  ////////////////////// SKA GÖRA /////////////////////////////////////
-        return null;
-    }
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        int rowsAffected = 0;
+        Person updatedPerson = null;
 
+        try {
+            connection = MySQLConnection.getInstance().getConnection();
+            preparedStatement = connection.prepareStatement("UPDATE person SET first_name = ?, last_name = ? WHERE person_id = ?");
+            preparedStatement.setString(1, person.getFirstName());
+            preparedStatement.setString(2, person.getLastName());
+            preparedStatement.setInt(3, person.getPersonId());
+
+            rowsAffected = preparedStatement.executeUpdate();
+
+            preparedStatement.close();
+
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+
+        if (rowsAffected > 0) {
+            return person;
+        } else {
+            return null;
+        }
+    }
 
     @Override
     public boolean deleteById(int personId) {
@@ -165,6 +183,8 @@ public class PeopleImplementation implements People {
 
             preparedStatement = connection.prepareStatement(deleteById);
             preparedStatement.setInt(1, personId);
+
+            wasDeleted = preparedStatement.executeUpdate() >0;
 
         } catch (SQLException e) {
             e.printStackTrace();

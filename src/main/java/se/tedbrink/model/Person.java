@@ -1,22 +1,27 @@
 package se.tedbrink.model;
 
-import se.tedbrink.data.PersonSequencer;
+//import se.tedbrink.data.PersonSequencer;
 
 public class Person {
-    private final int personId; ///////////////// AI i databasen
+    private int personId; ///////////////// AI i databasen, tog bort final
     private String firstName;
     private String lastName;
-    private String name;
+   // private String name;
 
     public Person(int personId, String firstName, String lastName) {
-        this.personId = PersonSequencer.nextPersonId(); //////////////// AI databasen
+      //  this.personId = PersonSequencer.nextPersonId(); //////////////// AI databasen
+        this.personId = personId;
         this.firstName = firstName;
         this.lastName = lastName;
        // name = this.firstName.concat(" " + this.lastName);  //////////////// Går säkert att göra på bättre sätt
     }
 
-    public int getPersonID() {   ////////////// AI i databasen
+    public int getPersonId() {
         return personId;
+    }
+
+    public void setPersonId(int personId) {
+        this.personId = personId;
     }
 
     public String getFirstName() {
@@ -35,13 +40,13 @@ public class Person {
         this.lastName = lastName;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+//    public String getName() {
+//        return name;
+//    }
+//
+//    public void setName(String name) {
+//        this.name = name;
+//    }
 
     @Override
     public String toString() {      // Används för test, kan ta bort.

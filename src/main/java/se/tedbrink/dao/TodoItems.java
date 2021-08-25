@@ -1,14 +1,14 @@
+
 package se.tedbrink.dao;
 
 import se.tedbrink.model.Person;
 import se.tedbrink.model.Todo;
-
 import java.util.ArrayList;
 import java.util.Collection;
 
 public interface TodoItems {
 
-    ArrayList<Todo> create(Todo todo);   // ska inte returnera en ArrayList!!!!!!!!!!!
+    Todo create(Todo todo);
 
     Collection<Todo> findAll();
 
