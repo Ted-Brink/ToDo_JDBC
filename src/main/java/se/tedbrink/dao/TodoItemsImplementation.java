@@ -206,10 +206,10 @@ public class TodoItemsImplementation implements TodoItems{
 
 
     @Override
-    public Collection<Todo> findByUnassignedToDoItems() {
-        Collection<Todo> unAssignedTodo = new ArrayList<>();
+    public Collection<Todo> findByUnassignedToDoItems() {   //////////////////////// ATT GÖÖÖRA //////////////////
+ /*       Collection<Todo> unAssignedTodo = new ArrayList<>();
 
-        String findByUnassignedToDoItems = "SELECT * FROM todo_items WHERE assignee_id = ?";
+        String findByUnassignedToDoItems = "SELECT * FROM todo_item WHERE assignee_id = ?";
 
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -217,16 +217,16 @@ public class TodoItemsImplementation implements TodoItems{
 
         try {
             connection = MySQLConnection.getInstance().getConnection();
+
             preparedStatement = connection.prepareStatement(findByUnassignedToDoItems);
+            preparedStatement.setInt(1,      );
             resultSet = preparedStatement.executeQuery();
-            preparedStatement.setInt(1,    );
-
-
 
         } catch (SQLException exception) {
             exception.printStackTrace();
-        }
+        }   */
         return null;
+
     }
 
     @Override
@@ -241,12 +241,9 @@ public class TodoItemsImplementation implements TodoItems{
 
     @Override
     public boolean deleteById(int todoId) {
-            for (Todo todo : todos) {
-                if (todo.getTodoId()== todoId) {
-                 return  todos.remove(todo);
-                }
-            }
-            return false;
+
+        return false;
         }
+
     }
 
