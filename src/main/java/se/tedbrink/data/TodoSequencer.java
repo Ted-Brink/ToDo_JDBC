@@ -1,5 +1,3 @@
-// Vet inte om sequensern behövs
-
 package se.tedbrink.data;
 
 public class TodoSequencer {

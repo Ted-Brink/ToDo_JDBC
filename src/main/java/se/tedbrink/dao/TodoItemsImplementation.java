@@ -1,4 +1,3 @@
-
 package se.tedbrink.dao;
 
 import se.tedbrink.db.MySQLConnection;
@@ -6,17 +5,14 @@ import se.tedbrink.model.Person;
 import se.tedbrink.model.Todo;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 
 public class TodoItemsImplementation implements TodoItems{
 
     @Override
     public Todo create(Todo todo) {
 
-        String createSQL = "INSERT in todo_item" +
-                "(title, description, deadline, done, assignee_id) VALUES(?,?,?,?,?,?)"; ////// assignee hämtas från person /////////
+        String createSQL = "INSERT INTO todo_item (title, description, deadline, done, assignee_id) VALUES(?,?,?,?,?)";
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -27,12 +23,11 @@ public class TodoItemsImplementation implements TodoItems{
             connection = MySQLConnection.getInstance().getConnection();
 
             preparedStatement = connection.prepareStatement(createSQL, Statement.RETURN_GENERATED_KEYS);
-
             preparedStatement.setString(1, todo.getTitle());
             preparedStatement.setString(2, todo.getDescription());
-            preparedStatement.setDate(3, todo.getDeadline());
+            preparedStatement.setDate(3,   todo.getDeadline());                             //java.sql.Date.valueOf(todo.getDeadline()));
             preparedStatement.setBoolean(4, todo.isDone());
-         //   preparedStatement.setInt(5, todo.getAssignee_id());       // kollla upp Todo om Assignee
+            preparedStatement.setInt(5, todo.getAssigneeId());
 
             rowsAffected = preparedStatement.executeUpdate();
 
@@ -75,8 +70,8 @@ public class TodoItemsImplementation implements TodoItems{
                                 resultSet.getString("title"),
                                 resultSet.getString("description"),
                                 resultSet.getDate("deadline"),
-                                resultSet.getBoolean("done")      //int eller boolean???????????????????
-                               // resultSet.getInt("assignee_id")      ///////// undra om det behövs??
+                                resultSet.getBoolean("done"),
+                                resultSet.getInt("assignee_id")
                         )
                 );
             }
@@ -91,7 +86,7 @@ public class TodoItemsImplementation implements TodoItems{
 
        Todo todoFound = null;
        String findById = "SELECT * FROM todo_item WHERE todo_id = ?";
-       Connection connection = MySQLConnection.getInstance().getConnection();
+       Connection connection = null;
        PreparedStatement preparedStatement = null;
        ResultSet resultSet = null;
 
@@ -108,15 +103,15 @@ public class TodoItemsImplementation implements TodoItems{
                        resultSet.getString("title"),
                        resultSet.getString("description"),
                        resultSet.getDate("deadline"),
-                       resultSet.getBoolean("done")         //boolean eller int //////////////////////
-                     //  resultSet.getInt("assignee_id")           // Person eller int //////////////////////////
+                       resultSet.getBoolean("done"),
+                       resultSet.getInt("assignee_id")
                );
            }
 
         } catch (SQLException exception) {
            exception.printStackTrace();
        }
-        return null;
+        return todoFound;
     }
 
     @Override
@@ -143,8 +138,8 @@ public class TodoItemsImplementation implements TodoItems{
                                 resultSet.getString("title"),
                                 resultSet.getString("description"),
                                 resultSet.getDate("deadline"),
-                                resultSet.getBoolean("done")      //int eller boolean???????????????????
-                                // resultSet.getInt("assignee_id")      ///////// undra om det behövs??
+                                resultSet.getBoolean("done"),
+                                resultSet.getInt("assignee_id")
                         )
                 );
             }
@@ -159,7 +154,10 @@ public class TodoItemsImplementation implements TodoItems{
     public Collection<Todo> findByAssignee(int personId) {
         Collection<Todo> assigneeFound = new ArrayList<>();
 
-        String findByAssignee = "SELECT * FROM todo_item WHERE personID = ?";
+        String findByAssignee = "SELECT todo_id, title, description, deadline, done, assignee_id " +
+                " FROM todo_item INNER JOIN person ON  assignee_id  = person_id WHERE assignee_id =?";
+
+
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -168,19 +166,19 @@ public class TodoItemsImplementation implements TodoItems{
             connection = MySQLConnection.getInstance().getConnection();
 
             preparedStatement = connection.prepareStatement(findByAssignee);
-            preparedStatement.setInt(1, personId);
+            preparedStatement.setInt(1, personId);                                                  /////////////////////////////////
 
             resultSet = preparedStatement.executeQuery();
 
-            if (resultSet.next()) {
+            while (resultSet.next()) {
                 assigneeFound.add(
                         new Todo(
                                 resultSet.getInt("todo_id"),
                                 resultSet.getString("title"),
                                 resultSet.getString("description"),
                                 resultSet.getDate("deadline"),
-                                resultSet.getBoolean("done")      //int eller boolean???????????????????
-                                //    resultSet.getInt("assignee_id")      ///////// undra om det behövs??
+                                resultSet.getBoolean("done"),
+                                resultSet.getInt("assignee_id")
                         )
                 );
             }
@@ -192,24 +190,19 @@ public class TodoItemsImplementation implements TodoItems{
     }
 
 
-
-
         @Override // sök bland person efter vilket assignee_id  /////////////// ATT GÖRA //////////////
     public Collection<Todo> findByAssignee(Person person) {
  //       Collection<Todo> assigneeFound = new ArrayList<>();
  //       String findByAssignee = " SELECT * FROM todo_item WHERE assignee_id = ?"
 
             return null;
-
     }
 
-
-
     @Override
-    public Collection<Todo> findByUnassignedToDoItems() {   //////////////////////// ATT GÖÖÖRA //////////////////
- /*       Collection<Todo> unAssignedTodo = new ArrayList<>();
+    public Collection<Todo> findByUnAssignedToDoItems() {
+        Collection<Todo> unAssignedTodo = new ArrayList<>();
 
-        String findByUnassignedToDoItems = "SELECT * FROM todo_item WHERE assignee_id = ?";
+        String findByUnassignedToDoItems = "SELECT * FROM todo_item WHERE assignee_id IS NULL";
 
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -219,31 +212,76 @@ public class TodoItemsImplementation implements TodoItems{
             connection = MySQLConnection.getInstance().getConnection();
 
             preparedStatement = connection.prepareStatement(findByUnassignedToDoItems);
-            preparedStatement.setInt(1,      );
+
             resultSet = preparedStatement.executeQuery();
+           while (resultSet.next()) {
+                unAssignedTodo.add(
+                        new Todo(
+                                resultSet.getInt("todo_id"),
+                                resultSet.getString("title"),
+                                resultSet.getString("description"),
+                                resultSet.getDate("deadline"),
+                                resultSet.getBoolean("done"),
+                                resultSet.getInt("assignee_id")
+                        )
+                );
+            }
 
         } catch (SQLException exception) {
             exception.printStackTrace();
-        }   */
-        return null;
-
+        }
+        return unAssignedTodo;
     }
 
-    @Override
-    public Todo update(Todo todo) {  ////////////////// Kolla vilka fält som finns i databasen
 
-        Todo todoUpdate = findById(todo.getTodoId());
-        if (todoUpdate != null) {
-            todoUpdate.setDescription(todoUpdate.getDescription()); // Kolla upp vad som kan uppdateras
+
+    @Override
+    public Todo update(Todo todo) {
+
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        int rowsAffected = 0;
+        Todo updatedTodo = null;
+
+        try {
+
+            connection = MySQLConnection.getInstance().getConnection();
+            preparedStatement = connection.prepareStatement("UPDATE todo_item SET title = ?, description = ?, deadline = ?, done = ?, assignee_id = ? WHERE todo_id =?");
+            preparedStatement.setString(1, todo.getTitle());
+            preparedStatement.setString(2, todo.getDescription());
+            preparedStatement.setDate(3,todo.getDeadline());
+            preparedStatement.setBoolean(4, todo.isDone());
+            preparedStatement.setInt(5, todo.getAssigneeId());
+            preparedStatement.setInt(6,todo.getTodoId());
+
+            rowsAffected = preparedStatement.executeUpdate();
+            preparedStatement.close();
+
+        } catch (SQLException exception) {
+            exception.printStackTrace();
         }
-        return todoUpdate;
+
+        return todo;
     }
 
     @Override
     public boolean deleteById(int todoId) {
 
-        return false;
+        String deleteById = "DELETE FROM todo_item WHERE todo_id = ?";
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        boolean wasDeleted = false;
+
+        try {
+            connection = MySQLConnection.getInstance().getConnection();
+            preparedStatement = connection.prepareStatement(deleteById);
+            preparedStatement.setInt(1, todoId);
+
+            wasDeleted = preparedStatement.executeUpdate() > 0;
+
+        } catch (SQLException exception) {
+            exception.printStackTrace();
         }
-
+        return wasDeleted;
     }
-
+}

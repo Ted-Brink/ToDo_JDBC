@@ -2,11 +2,9 @@ package se.tedbrink.dao;
 
 import se.tedbrink.db.MySQLConnection;
 import se.tedbrink.model.Person;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 public class PeopleImplementation implements People {
     @Override
@@ -40,7 +38,6 @@ public class PeopleImplementation implements People {
         }
         return person;
     }
-
 
 //  @Override
     public Collection<Person> findAll() {
@@ -80,7 +77,7 @@ public class PeopleImplementation implements People {
     //@Override
     public Person findById(int personId) {
         Person personFound = null;
-        String findById = "SELECT * FROM person person_id = ?";
+        String findById = "SELECT * FROM person WHERE person_id = ?";
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -110,10 +107,10 @@ public class PeopleImplementation implements People {
     }
 
     @Override
-    public Collection<Person> findByName(String name) {         ////////////////för- efternamn eller båda??????????? //////////////////
+    public Collection<Person> findByName(String name) {    /////för- efternamn eller båda??? ///////////
         Collection<Person> personFound = new ArrayList<>();
 
-        String findByName = "SELECT * FROM person WHERE last_name LIKE ?";   // Får lägga till first_name AND last_name
+        String findByName = "SELECT * FROM person WHERE last_name LIKE ? ";   // Får lägga till first_name AND last_name
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -143,7 +140,7 @@ public class PeopleImplementation implements People {
     }
 
     @Override
-    public Person update(Person person) {  ////////////////////// SKA GÖRA /////////////////////////////////////
+    public Person update(Person person) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         int rowsAffected = 0;

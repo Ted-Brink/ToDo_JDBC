@@ -1,9 +1,7 @@
-
 package se.tedbrink.dao;
 
 import se.tedbrink.model.Person;
 import se.tedbrink.model.Todo;
-import java.util.ArrayList;
 import java.util.Collection;
 
 public interface TodoItems {
@@ -20,7 +18,7 @@ public interface TodoItems {
 
     Collection<Todo> findByAssignee(Person person);
 
-    Collection<Todo> findByUnassignedToDoItems();
+    Collection<Todo> findByUnAssignedToDoItems();
 
     Todo update(Todo todo);
 
